@@ -176,7 +176,7 @@ QueryBuilder.buildSelectArgs = function(queryProperties) {
       if (goog.isDef(field.fieldAlias) &&
           !goog.string.isEmpty(field.fieldAlias) &&
           !(field.fieldName == field.fieldAlias)) {
-        fieldString += ' AS ' + field.fieldAlias.replace(/\W/g, '_');
+        fieldString += ' AS ' + field.fieldAlias;//field.fieldAlias.replace(/\W/g, '_');
       }
       selectArgs.push(fieldString);
     }
@@ -187,7 +187,7 @@ QueryBuilder.buildSelectArgs = function(queryProperties) {
     let metadata = queryProperties.metadataFilters[i];
     if (metadata.displayMode != Filter.DisplayMode.HIDDEN) {
       selectArgs.push(QueryBuilder.getRegexpForMetadata(metadata.fieldName) +
-                      ' AS ' + metadata.fieldName.replace(/\W/g, '_'));
+                      ' AS ' + metadata.fieldName);//metadata.fieldName.replace(/\W/g, '_'));
     }
   }
 

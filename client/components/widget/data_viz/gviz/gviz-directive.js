@@ -174,6 +174,10 @@ explorer.components.widget.data_viz.gviz.gvizChart = function(
        * Draws the chart only if possible.
        */
       let draw = function() {
+        console.log(scope.widgetConfig.model.chart.chartType);
+        console.log(scope.widgetConfig.state().datasource.status === ResultsDataStatus.FETCHED);
+        console.log(scope.widgetConfig.state().chart.gvizError);
+        console.log(checkForErrors());
         // Draw only if there is data and no errors.
         // If there is a gviz error we try to draw in order to let gviz update
         // the error.

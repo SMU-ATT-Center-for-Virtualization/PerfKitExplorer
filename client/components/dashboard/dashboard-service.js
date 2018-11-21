@@ -556,6 +556,13 @@ DashboardService.prototype.rewriteQuery = function(widget, replaceParams) {
   goog.asserts.assert(this.current, 'Bad state: No dashboard selected.');
 
   let widgetConfig = widget.model.datasource.config;
+  
+  console.log(widgetConfig);
+  
+  let data_labels = widgetConfig['data-labels']; 
+  console.log('data-labels');
+  console.log(data_labels);
+  console.log('end data-labels');
 
   let project_name = (this.arrayUtilService_.getFirst([
       widgetConfig.results.project_id,
@@ -597,6 +604,7 @@ DashboardService.prototype.rewriteQuery = function(widget, replaceParams) {
         /** @type {string} */ (project_name),
         /** @type {string} */ (dataset_name),
         /** @type {string} */ (table_name),
+        /** @type {array} */ (data_labels),
         /** @type {!QueryTablePartitioning} */ (table_partition), params);
 };
 

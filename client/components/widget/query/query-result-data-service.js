@@ -150,6 +150,24 @@ QueryResultDataService.prototype.getColumnIndexesOfType_ = function(
   return columnIndexes;
 };
 
+QueryResultDataService.prototype.getColumnIndexesOfID_ = function(
+    data, type) {
+  let columnIndexes = [];
+  angular.forEach(data.cols, function(column, index) {
+    if (goog.isArrayLike(type)) {
+      let arr = /** @type {Array.<string>} */ (type);
+      if (goog.array.contains(arr, column.id)) {
+        columnIndexes.push(index);
+      }
+    } else {
+      if (column.id === type) {
+        columnIndexes.push(index);
+      }
+    }
+  });
+  return columnIndexes;
+};
+
 
 /**
  * Loops over the data and converts string dates to Date objects.
@@ -169,6 +187,26 @@ QueryResultDataService.prototype.parseDates_ = function(data) {
       });
     });
   }
+};
+
+QueryResultDataService.prototype.extractLabels_ = function(data) {
+  let columnIndex = this.getColumnIndexesOfID_(data, 'labels');
+  if(columnIndex.length <= 0) {
+      return {};
+  }
+  console.log(columnIndex);
+  console.log(data);
+  let label_dict = {};
+
+  angular.forEach(data.rows, function(row) {
+    let row_labels = row.c[columnIndex].v.split(',');
+    angular.forEach(row_labels, function(row_label) {
+        row_label = row_label.split(':')[0].replace(/\|/g,'');
+        label_dict[row_label] = true;
+    });
+  });
+  
+  return label_dict;
 };
 
 
@@ -214,6 +252,8 @@ QueryResultDataService.prototype.fetchResults = function(widget) {
   let cacheKey = angular.toJson(datasource);
   let cachedDataTable = this.cache_.get(cacheKey);
   let isSelected = widget.state().selected;
+  
+  let config = datasource.config;
 
   if (cachedDataTable) {
     deferred.resolve(cachedDataTable);
@@ -224,6 +264,7 @@ QueryResultDataService.prototype.fetchResults = function(widget) {
       'dashboard_id': this.explorerStateService_.selectedDashboard.model.id,
       'id': widget.model.id,
       'datasource': datasource};
+    //console.log(postData);
     let promise = this.workQueue_.enqueue(
         () => this.http_.post(endpoint, postData),
         isSelected);
@@ -270,6 +311,12 @@ QueryResultDataService.prototype.fetchResults = function(widget) {
 
         let data = response.data.results;
         this.parseDates_(data);
+        
+        console.log('aaaaaa');
+        console.log(this.extractLabels_(data));
+        if (!'data-labels' in config || config['data-labels'] === undefined) {
+          config['data-labels'] = this.extractLabels_(data);
+        }
 
         let dataTable = new this.GvizDataTable_(data);
 

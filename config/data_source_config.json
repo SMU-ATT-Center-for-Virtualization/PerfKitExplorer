@@ -7,9 +7,9 @@
         "cache-duration": 0
     },
     "testing": {
-        "project_id": "TEST_PROJECT",
-        "project_name": "TEST_PROJECT_NAME",
-        "samples-mart": "PROJECT_NAME.DATASET_NAME",
+        "project_id": "attvc-217416",
+        "project_name": "ATTVC",
+        "samples-mart": "ATTVC.attvc-217416",
         "analytics-key": "ANALYTICS_KEY",
         "cache-duration": 0
     }

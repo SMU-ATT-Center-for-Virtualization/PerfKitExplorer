@@ -214,12 +214,13 @@ QueryBuilderService.prototype.replaceTokens = function(query, params) {
  * @return {string} A formatted SQL statement.
  */
 QueryBuilderService.prototype.getSql = function(
-    model, projectId, datasetName, tableName, tablePartition, params) {
+    model, projectId, datasetName, tableName, dataLabels, tablePartition, params) {
   let fieldFilters = [];
   let startFilter, endFilter = null;
   let startDateClause, endDateClause = null;
   let ctr, len, label = null;
 
+  /*
   if (model.filters.start_date) {
     switch (model.filters.start_date.filter_type) {
       case DateFilterType.CUSTOM:
@@ -297,44 +298,122 @@ QueryBuilderService.prototype.getSql = function(
                                 Filter.DisplayMode.HIDDEN));
   }
 
+  */
   let fieldSortOrders = [];
+  
+  console.log(model);
 
   angular.forEach(model.results.fields, angular.bind(this, function(field) {
     fieldFilters.push(
         new Filter(field.name, [], Filter.DisplayMode.COLUMN));
   }));
+    if (model.filters.start_date) {
+    switch (model.filters.start_date.filter_type) {
+        case DateFilterType.CUSTOM:
+        startFilter = this.getAbsoluteDateFunction(model.filters.start_date);
+        startDateClause = new FilterClause(
+            ['TIMESTAMP_TO_SEC(' + startFilter + ')'],
+            FilterClause.MatchRule.GE, true);
 
-  if (model.results.show_date === true) {
-    switch (model.results.date_group.toUpperCase()) {
-      case '':
-        fieldFilters.push(this.createSimpleFilter(
-            'SEC_TO_TIMESTAMP(INTEGER(timestamp))',
-            null, null, null, 'date'));
         break;
-      case 'WEEK':
-        fieldFilters.push(this.createSimpleFilter(
-            ('USEC_TO_TIMESTAMP(UTC_USEC_TO_WEEK(INTEGER(timestamp * ' +
-             dateUtil.BQ_TIMESTAMP_MULTIPLIER + '), ' +
-             dateUtil.BQ_FIRST_DAY_OF_WEEK + '))'),
-            null, null, null, 'date'));
-        break;
-      default:
-        fieldFilters.push(this.createSimpleFilter(
-            ('USEC_TO_TIMESTAMP(UTC_USEC_TO_' + model.results.date_group.toUpperCase() +
-             '(INTEGER(timestamp * ' +
-             dateUtil.BQ_TIMESTAMP_MULTIPLIER + ')))'),
-            null, null, null, 'date'));
+        default:
+        startFilter = this.getRelativeDateFunction(model.filters.start_date);
+        startDateClause = new FilterClause(
+            ['TIMESTAMP_TO_SEC(' + startFilter + ')'],
+            FilterClause.MatchRule.GE, true);
+
         break;
     }
+    }
+
+    if (model.filters.end_date) {
+    switch (model.filters.end_date.filter_type) {
+        case DateFilterType.CUSTOM:
+        endFilter = this.getAbsoluteDateFunction(model.filters.end_date);
+        endDateClause = new FilterClause(
+            ['TIMESTAMP_TO_SEC(' + endFilter + ')'], FilterClause.MatchRule.LE, true);
+
+        break;
+        default:
+        endDateClause = new FilterClause(
+            ['TIMESTAMP_TO_SEC(' + endFilter + ')'], FilterClause.MatchRule.LE, true);
+
+        break;
+    }
+    }
+
+    if (startDateClause) {
+    fieldFilters.push(
+        new Filter('timestamp', [startDateClause], Filter.DisplayMode.HIDDEN));
+    }
+
+    if (endDateClause) {
+    fieldFilters.push(
+        new Filter('timestamp', [endDateClause], Filter.DisplayMode.HIDDEN));
+    }
+    
+    console.log(dataLabels);
+    if(typeof dataLabels === 'undefined') {
+        fieldFilters.push(this.createSimpleFilter(
+            "labels",
+            null, null, null, 'labels'));
+    } else {
+        for (var dataLabel in dataLabels) {
+            console.log(dataLabel);
+            fieldFilters.push(this.createSimpleFilter(
+                "REGEXP_EXTRACT(labels, r'\\|" + dataLabel + ":(.*?)\\|')",
+                null, null, null, dataLabel));
+        }
+    }
+    fieldFilters.push(this.createSimpleFilter(
+        "unit",
+        null, null, null, 'unit'));
+    fieldFilters.push(this.createSimpleFilter(
+        "value",
+        null, null, null, 'value'));
+  
+    if (model.filters.product_name) {
+    fieldFilters.push(
+        this.createSimpleFilter('product_name',
+                                [model.filters.product_name],
+                                null,
+                                Filter.DisplayMode.HIDDEN));
   }
 
-  if (!model.filters.product_name) { fieldSortOrders.push('product_name'); }
-  if (!model.filters.test) { fieldSortOrders.push('test'); }
-  if (!model.filters.metric) { fieldSortOrders.push('metric'); }
-  if (model.results.show_date) {
-    fieldSortOrders.push('date');
+  if (model.filters.test) {
+    fieldFilters.push(
+        this.createSimpleFilter('test',
+                                [model.filters.test],
+                                null,
+                                Filter.DisplayMode.HIDDEN));
   }
 
+  if (model.filters.metric) {
+    fieldFilters.push(
+        this.createSimpleFilter('metric',
+                                [model.filters.metric],
+                                null,
+                                Filter.DisplayMode.HIDDEN));
+  }
+
+  if (model.filters.runby) {
+    fieldFilters.push(
+        this.createSimpleFilter('owner',
+                                [model.filters.runby],
+                                null,
+                                Filter.DisplayMode.HIDDEN));
+  }
+
+  
+  
+  //fieldFilters.push(this.createSimpleFilter('product_name', ['PerfKitBenchmarker']));
+  //fieldFilters.push(this.createSimpleFilter('test', ['iperf_vpn']));
+  //fieldFilters.push(this.createSimpleFilter('metric', ['Throughput']));
+  //fieldSortOrders.push('sending_zone');
+  //fieldSortOrders.push('machine_type');
+  fieldSortOrders.push('labels');
+
+  /*
   if (goog.isDefAndNotNull(model.results.labels)) {
     for (ctr = 0, len = model.results.labels.length; ctr < len; ctr++) {
       label = model.results.labels[ctr].label;
@@ -360,22 +439,19 @@ QueryBuilderService.prototype.getSql = function(
         FilterClause.MatchRule.CT,
         Filter.DisplayMode.HIDDEN));
   }
+  */
 
   let aggregations = [];
 
-  if (model.results.measure_values) {
-    aggregations = [];
-
-    angular.forEach(model.results.measures, function(measure) {
-      aggregations.push(measure.name);
-    });
-  } else {
-    fieldFilters.push(this.createSimpleFilter('value'));
-  }
-
+  //console.log(aggregations);
+  //console.log(fieldFilters);
   let queryProperties = new QueryProperties(
       aggregations,
       fieldFilters,
+      []);
+  let groupProperties = new QueryProperties(
+      [],
+      [],
       []);
 
   let tableId = datasetName + '.' + tableName;
@@ -400,18 +476,22 @@ QueryBuilderService.prototype.getSql = function(
     tableExpression = '[' + tableId + ']';
   }
 
+  console.log(BigQueryBuilder.buildSelectArgs(queryProperties));
+  console.log(tableExpression);
+  console.log(fieldSortOrders);
   let sql = BigQueryBuilder.formatQuery(
       BigQueryBuilder.buildSelectArgs(queryProperties),
       [tableExpression],
       BigQueryBuilder.buildWhereArgs(queryProperties),
-      BigQueryBuilder.buildGroupArgs(queryProperties),
+      BigQueryBuilder.buildGroupArgs(groupProperties),
       fieldSortOrders,
       model.results.row_limit);
 
   if (params) {
     sql = this.replaceTokens(sql, params);
   }
-
+  
+  console.log(sql);
   return sql;
 };
 

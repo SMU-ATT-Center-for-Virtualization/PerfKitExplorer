@@ -56,7 +56,7 @@ const DEFAULT_MEASURE = '99%';
  * The default max # of rows returned for new widgets.
  * @type {!number}
  */
-const DEFAULT_ROW_LIMIT = 100;
+const DEFAULT_ROW_LIMIT = 50;
 
 
 /**
