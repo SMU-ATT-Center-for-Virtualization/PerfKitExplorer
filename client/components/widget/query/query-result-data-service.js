@@ -202,7 +202,7 @@ QueryResultDataService.prototype.extractLabels_ = function(data) {
     let row_labels = row.c[columnIndex].v.split(',');
     angular.forEach(row_labels, function(row_label) {
         row_label = row_label.split(':')[0].replace(/\|/g,'');
-        label_dict[row_label] = true;
+        label_dict[row_label] = row_label;
     });
   });
   
@@ -312,10 +312,9 @@ QueryResultDataService.prototype.fetchResults = function(widget) {
         let data = response.data.results;
         this.parseDates_(data);
         
-        console.log('aaaaaa');
         console.log(this.extractLabels_(data));
-        if (!'data-labels' in config || config['data-labels'] === undefined) {
-          config['data-labels'] = this.extractLabels_(data);
+        if (!'dataLabels' in config || config['dataLabels'] === undefined) {
+          config['dataLabels'] = this.extractLabels_(data);
         }
 
         let dataTable = new this.GvizDataTable_(data);

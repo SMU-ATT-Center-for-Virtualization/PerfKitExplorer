@@ -214,7 +214,8 @@ QueryBuilderService.prototype.replaceTokens = function(query, params) {
  * @return {string} A formatted SQL statement.
  */
 QueryBuilderService.prototype.getSql = function(
-    model, projectId, datasetName, tableName, dataLabels, tablePartition, params) {
+    model, projectId, datasetName, tableName, dataLabels, dataGroups, tablePartition, params) {
+  console.log(dataGroups);
   let fieldFilters = [];
   let startFilter, endFilter = null;
   let startDateClause, endDateClause = null;
@@ -301,7 +302,7 @@ QueryBuilderService.prototype.getSql = function(
   */
   let fieldSortOrders = [];
   
-  console.log(model);
+  //console.log(model);
 
   angular.forEach(model.results.fields, angular.bind(this, function(field) {
     fieldFilters.push(
@@ -352,25 +353,51 @@ QueryBuilderService.prototype.getSql = function(
         new Filter('timestamp', [endDateClause], Filter.DisplayMode.HIDDEN));
     }
     
-    console.log(dataLabels);
+    //console.log(dataLabels);
+    let groupProperties = new QueryProperties(
+        [],
+        [],
+        []);
     if(typeof dataLabels === 'undefined') {
         fieldFilters.push(this.createSimpleFilter(
             "labels",
             null, null, null, 'labels'));
+        fieldFilters.push(this.createSimpleFilter(
+            "unit",
+            null, null, null, 'unit'));
+        fieldFilters.push(this.createSimpleFilter(
+            "value",
+            null, null, null, 'value'));
+        fieldSortOrders.push('labels');
+    } else if(typeof dataGroups['primaryGroup'] !== 'undefined') {
+        if(typeof dataGroups['secondaryGroup'] ==='undefined') {
+            fieldFilters.push(this.createSimpleFilter(
+                "REGEXP_EXTRACT(labels, r'\\|" + dataGroups['primaryGroup'] + ":(.*?)\\|')",
+                null, null, null, dataGroups['primaryGroup']));
+            fieldFilters.push(this.createSimpleFilter(
+                "AVG(value)",
+                null, null, null, 'value'));
+            //GROUP BY dataGroups['primaryGroup']
+        groupProperties = new QueryProperties(
+            [this.createSimpleFilter(dataGroups['primaryGroup'],null,null,null,dataGroups['primaryGroup'])],
+            [this.createSimpleFilter(dataGroups['primaryGroup'],null,null,null,dataGroups['primaryGroup'])],
+            []);
+        } else {
+        }
     } else {
         for (var dataLabel in dataLabels) {
-            console.log(dataLabel);
+            //console.log(dataLabel);
             fieldFilters.push(this.createSimpleFilter(
                 "REGEXP_EXTRACT(labels, r'\\|" + dataLabel + ":(.*?)\\|')",
                 null, null, null, dataLabel));
         }
-    }
-    fieldFilters.push(this.createSimpleFilter(
-        "unit",
-        null, null, null, 'unit'));
-    fieldFilters.push(this.createSimpleFilter(
-        "value",
-        null, null, null, 'value'));
+        fieldFilters.push(this.createSimpleFilter(
+            "unit",
+            null, null, null, 'unit'));
+        fieldFilters.push(this.createSimpleFilter(
+            "value",
+            null, null, null, 'value'));
+        }
   
     if (model.filters.product_name) {
     fieldFilters.push(
@@ -405,13 +432,16 @@ QueryBuilderService.prototype.getSql = function(
   }
 
   
+        console.log('gp');
+        console.log(groupProperties);
+        console.log(BigQueryBuilder.buildGroupArgs(groupProperties));
+        console.log('end gp');
   
   //fieldFilters.push(this.createSimpleFilter('product_name', ['PerfKitBenchmarker']));
   //fieldFilters.push(this.createSimpleFilter('test', ['iperf_vpn']));
   //fieldFilters.push(this.createSimpleFilter('metric', ['Throughput']));
   //fieldSortOrders.push('sending_zone');
   //fieldSortOrders.push('machine_type');
-  fieldSortOrders.push('labels');
 
   /*
   if (goog.isDefAndNotNull(model.results.labels)) {
@@ -449,10 +479,6 @@ QueryBuilderService.prototype.getSql = function(
       aggregations,
       fieldFilters,
       []);
-  let groupProperties = new QueryProperties(
-      [],
-      [],
-      []);
 
   let tableId = datasetName + '.' + tableName;
 
@@ -476,9 +502,9 @@ QueryBuilderService.prototype.getSql = function(
     tableExpression = '[' + tableId + ']';
   }
 
-  console.log(BigQueryBuilder.buildSelectArgs(queryProperties));
-  console.log(tableExpression);
-  console.log(fieldSortOrders);
+  console.log(BigQueryBuilder.buildGroupArgs(groupProperties));
+  //console.log(tableExpression);
+  //console.log(fieldSortOrders);
   let sql = BigQueryBuilder.formatQuery(
       BigQueryBuilder.buildSelectArgs(queryProperties),
       [tableExpression],

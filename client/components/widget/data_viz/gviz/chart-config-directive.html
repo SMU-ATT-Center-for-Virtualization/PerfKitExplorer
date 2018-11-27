@@ -17,6 +17,29 @@
           <a ng-href="https://developers.google.com/chart/interactive/docs/gallery/{{ ngModel.chart.chartType | lowercase }}"
              target="gvizDocs">Open documentation</a>
         </div>
+        
+      <div class="pk-sidebar-item-label">primary group</div>
+      <div class="pk-sidebar-item-value">
+        <md-select
+            ng-model="dashboardSvc.selectedWidget.model.datasource.config.primaryGroup"
+            placeholder="Data label"
+            class="pk-sidebar-input-full widget-chart-type">
+          <md-option
+              ng-value="dataLabel"
+              ng-repeat="dataLabel in dashboardSvc.dataColumns">{{ dataLabel }}</md-option>
+        </md-select>
+      </div>
+      
+      <div class="pk-sidebar-item-label">secondary group</div>
+      <div class="pk-sidebar-item-value">
+        <md-select
+            ng-model="dashboardSvc.selectedWidget.model.datasource.config.secondaryGroup"
+            placeholder="Data label"
+            class="pk-sidebar-input-full widget-chart-type">
+          <md-option
+              ng-value="dataLabel"
+              ng-repeat="dataLabel in dashboardSvc.dataColumns">{{ dataLabel }}</md-option>
+        </md-select>
       </div>
     </div>
 

@@ -132,6 +132,7 @@ QueryBuilder.getRegexpForMetadata = function(name) {
  *     statements.  Each group by statement is an element in the array.
  */
 QueryBuilder.buildGroupArgs = function(queryProperties) {
+  console.log(queryProperties);
   let groupArgs = [];
 
   if (queryProperties.aggregations.length == 0) {
@@ -140,6 +141,8 @@ QueryBuilder.buildGroupArgs = function(queryProperties) {
 
   let allFilters = queryProperties.fieldFilters.concat(
       queryProperties.metadataFilters);
+  console.log('allFilters');
+  console.log(allFilters);
   for (let i = 0, len = allFilters.length; i < len; i++) {
     let field = allFilters[i];
     if (field.displayMode != Filter.DisplayMode.HIDDEN) {
@@ -151,6 +154,7 @@ QueryBuilder.buildGroupArgs = function(queryProperties) {
       }
     }
   }
+  console.log(groupArgs);
 
   return groupArgs;
 };

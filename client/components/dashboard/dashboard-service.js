@@ -145,6 +145,9 @@ explorer.components.dashboard.DashboardService = function(arrayUtilService,
 
   /** @export {boolean} */
   this.isDashboardLoading = false;
+  
+  /** @export {Array} */
+  this.dataColumns = [];
 
   /** @export {Array.<!QueryTablePartitioning>} */
   this.TABLE_PARTITIONS = [
@@ -559,10 +562,10 @@ DashboardService.prototype.rewriteQuery = function(widget, replaceParams) {
   
   console.log(widgetConfig);
   
-  let data_labels = widgetConfig['data-labels']; 
-  console.log('data-labels');
-  console.log(data_labels);
-  console.log('end data-labels');
+  let data_labels = widgetConfig['dataLabels']; 
+  let data_groups = {'primaryGroup':widgetConfig['primaryGroup'],'secondaryGroup':widgetConfig['secondaryGroup']};
+  
+  this.dataColumns = data_labels;
 
   let project_name = (this.arrayUtilService_.getFirst([
       widgetConfig.results.project_id,
@@ -604,7 +607,8 @@ DashboardService.prototype.rewriteQuery = function(widget, replaceParams) {
         /** @type {string} */ (project_name),
         /** @type {string} */ (dataset_name),
         /** @type {string} */ (table_name),
-        /** @type {array} */ (data_labels),
+        /** @type {Array} */ (data_labels),
+        /** @type {Object} */ (data_groups),
         /** @type {!QueryTablePartitioning} */ (table_partition), params);
 };
 
