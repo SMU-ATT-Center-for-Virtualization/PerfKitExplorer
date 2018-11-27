@@ -370,23 +370,29 @@ QueryBuilderService.prototype.getSql = function(
             null, null, null, 'value'));
         fieldSortOrders.push('labels');
     } else if(typeof dataGroups['primaryGroup'] !== 'undefined') {
+        console.log(dataGroups['primaryGroup']);
+        let primaryGroup = dataGroups['primaryGroup'].join('_');
+        let primaryGroupQuery = "CONCAT(";
+        angular.forEach(dataGroups['primaryGroup'], function(currentLabel) {
+            primaryGroupQuery += "REGEXP_EXTRACT(labels, r'\\|" + currentLabel + ":(.*?)\\|'),'_',";
+        });
+        primaryGroupQuery = primaryGroupQuery.slice(0,-5) + ')';
         if(typeof dataGroups['secondaryGroup'] ==='undefined') {
             fieldFilters.push(this.createSimpleFilter(
-                "REGEXP_EXTRACT(labels, r'\\|" + dataGroups['primaryGroup'] + ":(.*?)\\|')",
-                null, null, null, dataGroups['primaryGroup']));
+                primaryGroupQuery,
+                null, null, null, primaryGroup));
             fieldFilters.push(this.createSimpleFilter(
                 "AVG(value)",
                 null, null, null, 'value'));
             //GROUP BY dataGroups['primaryGroup']
         groupProperties = new QueryProperties(
-            [this.createSimpleFilter(dataGroups['primaryGroup'],null,null,null,dataGroups['primaryGroup'])],
-            [this.createSimpleFilter(dataGroups['primaryGroup'],null,null,null,dataGroups['primaryGroup'])],
+            [this.createSimpleFilter(primaryGroup,null,null,null,primaryGroup)],
+            [this.createSimpleFilter(primaryGroup,null,null,null,primaryGroup)],
             []);
         } else {
         }
     } else {
         for (var dataLabel in dataLabels) {
-            //console.log(dataLabel);
             fieldFilters.push(this.createSimpleFilter(
                 "REGEXP_EXTRACT(labels, r'\\|" + dataLabel + ":(.*?)\\|')",
                 null, null, null, dataLabel));
@@ -432,10 +438,6 @@ QueryBuilderService.prototype.getSql = function(
   }
 
   
-        console.log('gp');
-        console.log(groupProperties);
-        console.log(BigQueryBuilder.buildGroupArgs(groupProperties));
-        console.log('end gp');
   
   //fieldFilters.push(this.createSimpleFilter('product_name', ['PerfKitBenchmarker']));
   //fieldFilters.push(this.createSimpleFilter('test', ['iperf_vpn']));
@@ -502,7 +504,6 @@ QueryBuilderService.prototype.getSql = function(
     tableExpression = '[' + tableId + ']';
   }
 
-  console.log(BigQueryBuilder.buildGroupArgs(groupProperties));
   //console.log(tableExpression);
   //console.log(fieldSortOrders);
   let sql = BigQueryBuilder.formatQuery(

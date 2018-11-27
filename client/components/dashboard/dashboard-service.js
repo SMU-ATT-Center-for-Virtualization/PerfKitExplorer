@@ -560,7 +560,6 @@ DashboardService.prototype.rewriteQuery = function(widget, replaceParams) {
 
   let widgetConfig = widget.model.datasource.config;
   
-  console.log(widgetConfig);
   
   let data_labels = widgetConfig['dataLabels']; 
   let data_groups = {'primaryGroup':widgetConfig['primaryGroup'],'secondaryGroup':widgetConfig['secondaryGroup']};
