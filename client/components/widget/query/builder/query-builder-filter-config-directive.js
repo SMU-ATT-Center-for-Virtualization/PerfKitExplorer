@@ -32,6 +32,7 @@ const DateFilter = explorer.models.perfkit_simple_builder.DateFilter;
 const MetadataFilter = explorer.models.perfkit_simple_builder.MetadataFilter;
 const PicklistStates = explorer.components.widget.query.picklist.PicklistStates;
 const PicklistService = explorer.components.widget.query.picklist.PicklistService;
+const DashboardService = explorer.components.dashboard.DashboardService;
 const ChartWidgetModel = explorer.models.ChartWidgetModel;
 
 
@@ -49,9 +50,12 @@ explorer.components.widget.query.builder.QueryBuilderFilterConfigDirective = fun
       'ngModel': '='
     },
     templateUrl: '/static/components/widget/query/builder/query-builder-filter-config-directive.html',
-    controller: ['$scope', 'picklistService', function($scope, picklistService) {
+    controller: ['$scope', 'picklistService', 'dashboardService', function($scope, picklistService, dashboardService) {
       /** @export {!PicklistService} */
       $scope.picklistSvc = picklistService;
+      
+      /** @export {!DashboardService} */
+      $scope.dashboardSvc = dashboardService;
 
       /**
        * Adds an end date to the filters.

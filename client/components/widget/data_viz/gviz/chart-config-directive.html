@@ -26,7 +26,7 @@
             class="pk-sidebar-input-full widget-chart-type">
           <md-option
               ng-value="dataLabel"
-              ng-repeat="dataLabel in dashboardSvc.dataColumns">{{ dataLabel }}</md-option>
+              ng-repeat="(dataLabel,value) in dashboardSvc.dataColumns">{{ dataLabel }}</md-option>
         </md-select>
       </div>
       
@@ -38,7 +38,7 @@
             class="pk-sidebar-input-full widget-chart-type">
           <md-option
               ng-value="dataLabel"
-              ng-repeat="dataLabel in dashboardSvc.dataColumns">{{ dataLabel }}</md-option>
+              ng-repeat="(dataLabel,value) in dashboardSvc.dataColumns">{{ dataLabel }}</md-option>
         </md-select>
       </div>
     </div>

@@ -201,8 +201,12 @@ QueryResultDataService.prototype.extractLabels_ = function(data) {
   angular.forEach(data.rows, function(row) {
     let row_labels = row.c[columnIndex].v.split(',');
     angular.forEach(row_labels, function(row_label) {
-        row_label = row_label.split(':')[0].replace(/\|/g,'');
-        label_dict[row_label] = row_label;
+        let parsed_label = row_label.split(':')[0].replace(/\|/g,'');
+        let parsed_value = row_label.split(':')[1].replace(/\|/g,'');
+        if(!(parsed_label in label_dict)) {
+            label_dict[parsed_label] = {};
+        }
+        label_dict[parsed_label][parsed_value] = true;
     });
   });
   

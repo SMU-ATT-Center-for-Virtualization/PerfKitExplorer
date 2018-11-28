@@ -372,7 +372,7 @@ QueryBuilderService.prototype.getSql = function(
     } else if(typeof dataGroups['primaryGroup'] !== 'undefined') {
         console.log(dataGroups['primaryGroup']);
         let primaryGroup = dataGroups['primaryGroup'].join('_');
-        let primaryGroupQuery = "CONCAT(";
+        let primaryGroupQuery = dataGroups['primaryGroup'].length > 1 ? "CONCAT(" : "(";
         angular.forEach(dataGroups['primaryGroup'], function(currentLabel) {
             primaryGroupQuery += "REGEXP_EXTRACT(labels, r'\\|" + currentLabel + ":(.*?)\\|'),'_',";
         });
