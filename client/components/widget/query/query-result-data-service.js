@@ -206,7 +206,7 @@ QueryResultDataService.prototype.extractLabels_ = function(data) {
         if(!(parsed_label in label_dict)) {
             label_dict[parsed_label] = {};
         }
-        label_dict[parsed_label][parsed_value] = true;
+        label_dict[parsed_label][parsed_value] = parsed_label;
     });
   });
   

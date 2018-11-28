@@ -547,6 +547,26 @@ DashboardService.prototype.selectContainer = function(
 
 
 /**
+ * Converts filters stored as value~column strings to dictionary format.
+ * @param {Array} data list of value~column strings
+ * @return {object} filters stored in dictionary format.
+ */
+DashboardService.prototype.extractFilters_ = function(data) {
+  let filter_dict = {};
+
+  angular.forEach(data, function(row) {
+    let parsed_value = row.split('~')[0];
+    let parsed_column = row.split('~')[1];
+        if(!(parsed_column in filter_dict)) {
+            filter_dict[parsed_column] = [];
+        }
+        filter_dict[parsed_column].push(parsed_value);
+  });
+  
+  return filter_dict;
+};
+
+/**
  * Rewrites the current widget's query based on the config.
  * @param {!WidgetConfig} widget The widget to rewrite the query against.
  * @param {boolean=} replaceParams If true, parameters (%%NAME%%) will be
@@ -563,6 +583,7 @@ DashboardService.prototype.rewriteQuery = function(widget, replaceParams) {
   
   let data_labels = widgetConfig['dataLabels']; 
   let data_groups = {'primaryGroup':widgetConfig['primaryGroup'],'secondaryGroup':widgetConfig['secondaryGroup']};
+  let data_filters = this.extractFilters_(widgetConfig['selectedFilterResults']);
   
   this.dataColumns = data_labels;
 
@@ -608,6 +629,7 @@ DashboardService.prototype.rewriteQuery = function(widget, replaceParams) {
         /** @type {string} */ (table_name),
         /** @type {Array} */ (data_labels),
         /** @type {Object} */ (data_groups),
+        /** @type {Object} */ (data_filters),
         /** @type {!QueryTablePartitioning} */ (table_partition), params);
 };
 

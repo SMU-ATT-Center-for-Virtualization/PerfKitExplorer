@@ -214,8 +214,7 @@ QueryBuilderService.prototype.replaceTokens = function(query, params) {
  * @return {string} A formatted SQL statement.
  */
 QueryBuilderService.prototype.getSql = function(
-    model, projectId, datasetName, tableName, dataLabels, dataGroups, tablePartition, params) {
-  console.log(dataGroups);
+    model, projectId, datasetName, tableName, dataLabels, dataGroups, dataFilters, tablePartition, params) {
   let fieldFilters = [];
   let startFilter, endFilter = null;
   let startDateClause, endDateClause = null;
@@ -303,6 +302,8 @@ QueryBuilderService.prototype.getSql = function(
   let fieldSortOrders = [];
   
   //console.log(model);
+  
+  
 
   angular.forEach(model.results.fields, angular.bind(this, function(field) {
     fieldFilters.push(
@@ -384,7 +385,6 @@ QueryBuilderService.prototype.getSql = function(
             fieldFilters.push(this.createSimpleFilter(
                 "AVG(value)",
                 null, null, null, 'value'));
-            //GROUP BY dataGroups['primaryGroup']
         groupProperties = new QueryProperties(
             [this.createSimpleFilter(primaryGroup,null,null,null,primaryGroup)],
             [this.createSimpleFilter(primaryGroup,null,null,null,primaryGroup)],
@@ -404,6 +404,17 @@ QueryBuilderService.prototype.getSql = function(
             "value",
             null, null, null, 'value'));
         }
+    
+    let matchClause = [];
+    let filterExpression = null;
+    angular.forEach(dataFilters, function(values,column) {
+        filterExpression = "REGEXP_EXTRACT(labels, r'\\|" + column + ":(.*?)\\|')";
+        angular.forEach(values, function(value) {
+            matchClause.push(new FilterClause(["'"+value+"'"],FilterClause.MatchRule.EQ,true));
+        });
+        fieldFilters.push(new Filter(filterExpression, matchClause, Filter.DisplayMode.HIDDEN));
+        matchClause = [];
+    });
   
     if (model.filters.product_name) {
     fieldFilters.push(
@@ -475,8 +486,6 @@ QueryBuilderService.prototype.getSql = function(
 
   let aggregations = [];
 
-  //console.log(aggregations);
-  //console.log(fieldFilters);
   let queryProperties = new QueryProperties(
       aggregations,
       fieldFilters,
@@ -504,8 +513,6 @@ QueryBuilderService.prototype.getSql = function(
     tableExpression = '[' + tableId + ']';
   }
 
-  //console.log(tableExpression);
-  //console.log(fieldSortOrders);
   let sql = BigQueryBuilder.formatQuery(
       BigQueryBuilder.buildSelectArgs(queryProperties),
       [tableExpression],
