@@ -11,10 +11,10 @@ Set up your workstation
 
 1. Install prerequisite packages:
 
-         sudo apt-get install python2.7 openjdk-7-jdk git nodejs nodejs-legacy npm
+         sudo apt-get install python2.7 openjdk-8-jdk git nodejs nodejs-legacy npm
 
    * Python 2.7 runtime
-   * Java 7 SDK
+   * Java 8 SDK
    * Git
    * NodeJS (nodejs-legacy provides the required /usr/bin/node symlink)
    * Node Package Manager (NPM)
@@ -28,6 +28,8 @@ Set up your workstation
 1. Install the [Google App Engine SDK for Python](https://cloud.google.com/appengine/downloads).
 
    * note: You will need to add the App Engine SDK to your PATH so that you can find appcfg.py.
+
+    export PYTHONPATH=:/home/username/google-cloud-sdk/platform/google_appengine
 
 1. Create a root folder for your source code (i.e.: `~/projects`) and navigate to it.
 
