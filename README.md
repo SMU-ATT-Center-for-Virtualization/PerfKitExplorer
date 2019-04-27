@@ -37,7 +37,7 @@ Set up your workstation
 
    * note: You might need to add the sdk to your python path. If your deployment step fails, odds are that this is why. 
 
-    export PYTHONPATH="$PYTHONPATH:/home/username/google-cloud-sdk/platform/google_appengine"
+         export PYTHONPATH="$PYTHONPATH:/home/username/google-cloud-sdk/platform/google_appengine"
 
 1. Create a root folder for your source code (i.e.: `~/projects`) and navigate to it.
 
