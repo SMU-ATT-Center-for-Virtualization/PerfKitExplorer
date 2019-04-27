@@ -154,20 +154,14 @@ Compile and Deploy PerfKit Explorer
 
          gcloud app deploy
 
-1. By default the application will be deployed to a build/version specific to
-   your client. For example, with the following values:
+1. By default a version number will be generated for you. A list of the versioned you have deployed can be found on the [App Engine](https://console.cloud.google.com/appengine/versions) page
 
-         application: MY_PROJECT_ID
-         version: 15
-
-    will deploy to http://15-dot-MY_PROJECT_ID.appspot.com
-
-    #TODO remove application ad version from app.yaml
+    The app will deploy to http://MY_PROJECT_ID.appspot.com
 
 Set up a PerfKit dashboard
 ==========================
 
-1. Open the project URL http://15-dot-MY_PROJECT_ID.appspot.com in your browser.
+1. Open the project URL http://MY_PROJECT_ID.appspot.com in your browser.
 
 1. Click "Edit Config" in the gear icon at the top right and set
    "default project" to the project id.
