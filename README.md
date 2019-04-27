@@ -6,10 +6,14 @@ Note the installation instructions below are based on using a Google Cloud Platf
 Debian Backports image. Instructions for platform installation may vary depending on your operating system and
 patch levels.
 
+This installation has been tested on ubuntu 16.04 and Google Cloud Shell
+
 Set up your workstation
 =======================
 
 1. Install prerequisite packages:
+         
+         sudo apt-get update
 
          sudo apt-get install python2.7 openjdk-8-jdk git nodejs nodejs-legacy npm
 
@@ -19,7 +23,7 @@ Set up your workstation
    * NodeJS (nodejs-legacy provides the required /usr/bin/node symlink)
    * Node Package Manager (NPM)
 
-1. Install the [Google Cloud SDK](https://developers.google.com/cloud/sdk/):
+1. Install the [Google Cloud SDK](https://developers.google.com/cloud/sdk/). This step is not necessary if using Google Cloud Shell:
 
          curl https://sdk.cloud.google.com | bash
 
@@ -27,9 +31,13 @@ Set up your workstation
 
 1. Install the [Google App Engine SDK for Python](https://cloud.google.com/appengine/downloads).
 
-   * note: You will need to add the App Engine SDK to your PATH so that you can find appcfg.py.
+    gcloud components install app-engine-python
 
-    export PYTHONPATH=:/home/username/google-cloud-sdk/platform/google_appengine
+    gcloud components install app-engine-python-extras
+
+   * note: You might need to add the sdk to your python path. If your deployment step fails, odds are that this is why. 
+
+    export PYTHONPATH="$PYTHONPATH:/home/username/google-cloud-sdk/platform/google_appengine"
 
 1. Create a root folder for your source code (i.e.: `~/projects`) and navigate to it.
 
@@ -41,7 +49,7 @@ Set up your workstation
 
 1. Clone the repository:
 
-         git clone https://github.com/GoogleCloudPlatform/PerfKitExplorer.git
+         git clone https://github.com/SMU-ATT-Center-for-Virtualization/PerfKitExplorer.git
 
    or, if you created your own fork in the step above:
 
@@ -65,12 +73,12 @@ Set up your workstation
          git submodule update --init
 
 1. Install the NPM packages for Gulp and dependencies, this will
-    create a node_modules directory in the project.
+    create a node_modules directory in the project. 
 
          npm install
 
 1. Install Bower and the Bower packages for client-side dependencies, this will
-    create a bower_components directory in the project.
+    create a bower_components directory in the project. (might need to use `sudo npm install`)
 
          npm install -g bower
          bower install
@@ -124,16 +132,12 @@ Compile and Deploy PerfKit Explorer
 
 1. Modify the `app.yaml` file so that the
    [instance class](https://cloud.google.com/appengine/docs/adminconsole/performancesettings)
-   is appropriate for your needs, and the application name matches the
-   project id you created in the 'Create the App Engine project' step,
-   and the version string is set appropriately. For example:
+   is appropriate for your needs. For example:
 
-         application: perfkit-explorer-demo
-         version: beta
          instance_class: F2
 
 1. Modify the `config/data_source_config.json` so that the production tags are
-   appropriate for the repository you created in the previous step. For example:
+   appropriate for the repository you created in the previous step. If not using an analytics key, leave that field blank. For example:
 
          project_id: perfkit-explorer-demo
          project_name: perfkit-samples
@@ -148,7 +152,7 @@ Compile and Deploy PerfKit Explorer
 
 1. Deploy PerfKit Explorer to App Engine.
 
-         appcfg.py --oauth2 update deploy
+         gcloud app deploy
 
 1. By default the application will be deployed to a build/version specific to
    your client. For example, with the following values:
@@ -157,6 +161,8 @@ Compile and Deploy PerfKit Explorer
          version: 15
 
     will deploy to http://15-dot-MY_PROJECT_ID.appspot.com
+
+    #TODO remove application ad version from app.yaml
 
 Set up a PerfKit dashboard
 ==========================
