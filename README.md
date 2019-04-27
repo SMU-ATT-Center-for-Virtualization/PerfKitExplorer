@@ -31,9 +31,9 @@ Set up your workstation
 
 1. Install the [Google App Engine SDK for Python](https://cloud.google.com/appengine/downloads).
 
-    gcloud components install app-engine-python
+        gcloud components install app-engine-python
 
-    gcloud components install app-engine-python-extras
+        gcloud components install app-engine-python-extras
 
    * note: You might need to add the sdk to your python path. If your deployment step fails, odds are that this is why. 
 
